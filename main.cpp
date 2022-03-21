@@ -62,7 +62,7 @@ int getDuration(string fileName) {
 
 string sshIperf(vector<int> flow) {
     return "ssh PC"+to_string(flow[1])+
-           " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]]]+" > logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt 2>&1 &\n"; ///dev/null 2>&1;
+           " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]]]+" > /dev/null 2> logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt &\n"; // /dev/null 2>&1;
 }
 
 vector<vector<int>> outTraffic(int machineNum, const vector<vector<int>>& flows) {
@@ -230,14 +230,14 @@ int main() {
         system("rm logs/out/*.txt");
         system("rm iperf/config/*.sh");
         string instanceName = "NW_0.2_20M_10C_1";
-        string algo = "";
+        string algo = "_elite";
         ipAddress = fileToIPAddresses("config/iptable.txt");
         duration = getDuration("instances/"+instanceName+"_cct"+algo+".csv");
         prio = fileToPrio("instances/"+instanceName+"_prio"+algo+".csv");
         vector<vector<int>> flows = fileToVector("instances/"+instanceName+".csv");
         setCoflowToPrio(flows, prio);
         sender(flows);
-        system(("python3 time.py "+instanceName+" "+to_string(i)).c_str());
+        //system(("python3 time.py "+instanceName+" "+to_string(i)).c_str());
         cout<<"end "<<i<<endl;
         sleep(2);
     }
