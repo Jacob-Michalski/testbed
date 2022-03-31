@@ -57,7 +57,7 @@ int getDuration(string fileName) {
         if(flow.peek() == ',') flow.ignore();
     }
     instance.close();
-    return(maximum*1.5);
+    return(maximum*1.2);
 }
 
 string sshIperf(vector<int> flow) {
@@ -92,7 +92,7 @@ string DSCPfilter(const string& dscp, const string& flowNum) {
 void prioritization(const string& netInt, const vector<vector<int>>& flows, ostream &script) {
     script << "tc qdisc del dev "+netInt+" root\n";
     script << TCqdiscRoot(netInt, "htb default 1").command;
-    script << TCclass(netInt, "1:", "1:1", "htb rate 10000kbit ceil 10000kbit burst 10000kbit").command;
+    script << TCclass(netInt, "1:", "1:1", "htb rate 10240kbit ceil 10240kbit burst 10240kbit").command;
     script << TCqdiscParent(netInt, "1:1", "2:", "prio bands 16").command;
     int classID = 1, coflow = flows[0][0];
     script << TCfilter(netInt, "2:0", "1", DSCPfilter(dscp[coflowToPrio[flows[0][0]]], "2:"+to_string(classID))).command;
@@ -229,15 +229,16 @@ int main() {
         system("rm logs/in/*.txt");
         system("rm logs/out/*.txt");
         system("rm iperf/config/*.sh");
-        string instanceName = "NW_0.2_20M_10C_1";
-        string algo = "_elite";
+        string instanceName = "toy";
+        string algo = "";
         ipAddress = fileToIPAddresses("config/iptable.txt");
         duration = getDuration("instances/"+instanceName+"_cct"+algo+".csv");
         prio = fileToPrio("instances/"+instanceName+"_prio"+algo+".csv");
         vector<vector<int>> flows = fileToVector("instances/"+instanceName+".csv");
         setCoflowToPrio(flows, prio);
         sender(flows);
-        //system(("python3 time.py "+instanceName+" "+to_string(i)).c_str());
+        if (algo == "") algo = "1";
+        system(("python3 time.py "+instanceName+" "+algo+" "+to_string(i)+" "+to_string(prio.size())).c_str());
         cout<<"end "<<i<<endl;
         sleep(2);
     }

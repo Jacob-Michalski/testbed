@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tabulate import tabulate
 
-def graph(name, nr):
-    algo = ""
+def graph(name, algo, nr, coflowNumber):
+
     results = np.genfromtxt(f"times/{name}/{name}{algo}_({nr}).csv", delimiter=",", skip_header=1)
-    expected = np.genfromtxt(f"instances/{name}_cct.csv", delimiter=",", skip_header=1)
+    expected = np.genfromtxt(f"instances/{name}_cct{algo}.csv", delimiter=",", skip_header=1)
 
     times = {}
-    for coflow in range(1, 11):
+    for coflow in range(1, coflowNumber+1):
         times[coflow] = float('0.0')
 
     for line in results:
@@ -23,13 +23,13 @@ def graph(name, nr):
         for time in times:
             cct.write(str(time)+'\n')
         cct.write('\n')
-        for i in range (10):
-            cct.write(str((times[i]-expected_times[i])/10)+'\n')
+        for i in range (coflowNumber):
+            cct.write(str((times[i]-expected_times[i])/coflowNumber)+'\n')
 
-    # print(times)
-    # print()
-    # print((times  / expected_times - 1)*100)
+    print(times)
+    print()
+    print((times / expected_times)*100 - 100)
 
     plt.bar(coflows, times, align="edge", width=0.3)
     plt.bar(coflows, expected_times, align="edge", width=-0.3)
-    plt.savefig(f"graphs/{name}/{name}_({nr}).png")
+    plt.savefig(f"graphs/{name}/{name}{algo}_({nr}).png")

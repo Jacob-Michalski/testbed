@@ -46,10 +46,14 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('instance', type=str)
+parser.add_argument('algorithm', type=str)
 parser.add_argument('number', type=str)
+parser.add_argument('coflowNumber', type=int)
 args = parser.parse_args()
 name = args.instance
+algo = "" if args.algorithm == "1" else args.algorithm
 nr = args.number
+coflowNumber = args.coflowNumber
 path = "/home/me/Work/multipass/"
 logs = os.listdir(path+"logs/in/")
 minimum = 6000.0
@@ -79,7 +83,6 @@ with open(path+"config/iptable.txt") as ipt:
         iptable.append(ip)
 ipt.close()
 # id = token_hex(8)
-algo = ""
 with open(f"{path}times/{name}/{name}{algo}_({nr}).csv", "w+") as times:
     times.write("coflow,source,destination,time\n")
     for log in logs:
@@ -100,4 +103,4 @@ with open(f"{path}times/{name}/{name}{algo}_({nr}).csv", "w+") as times:
         file.close()
     # print(id)
 times.close()
-graph(name, nr)
+graph(name, algo, nr, coflowNumber)

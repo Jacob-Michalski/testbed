@@ -35,9 +35,9 @@ do
 	#installation des packets necessaires sur la vm et transmission de la cle ssh 
 	sshpass -p "admin" ssh ubuntu@$ip "sudo hwclock --hctosys && \
 	sleep 5 && sudo apt update && sudo apt -y install iperf3 && sudo apt -y install sshpass && \
-	sudo sysctl net.core.somaxconn=65536 && sudo sysctl net.ipv4.tcp_orphan_retries=1 && \
+	sudo sysctl net.core.somaxconn=65536 \
 	sudo sysctl net.ipv4.tcp_retries1=5 && sudo sysctl net.ipv4.tcp_retries2=20 && \
-	sudo sysctl net.ipv4.tcp_syn_retries=10 && sudo sysctl net.ipv4.tcp_synack_retries=10 && \
+	sudo sysctl net.ipv4.tcp_syn_retries=255 && sudo sysctl net.ipv4.tcp_synack_retries=255 && \
 	ssh-keygen -f /home/ubuntu/.ssh/id_rsa -q -N '""' && \
 	sshpass -p 'admin' ssh-copy-id -o StrictHostKeyChecking=no $user@$host && \
 	cat config.txt | cat - /etc/ssh/ssh_config > temp && sudo mv temp /etc/ssh/ssh_config && rm config.txt"
