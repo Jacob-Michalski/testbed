@@ -4,7 +4,6 @@
 #include <vector>
 #include <algorithm>
 #include <unistd.h>
-#include "TC.h"
 
 using namespace std;
 
@@ -85,45 +84,6 @@ vector<vector<int>> inTraffic(int machineNum, const vector<vector<int>>& flows) 
     return in;
 }
 
-string DSCPfilter(const string& dscp, const string& flowNum) {
-    return "u32 match ip tos "+dscp+" 0xff flowid "+flowNum;
-}
-
-void prioritization(const string& netInt, const vector<vector<int>>& flows, ostream &script) {
-    script << "tc qdisc del dev "+netInt+" root\n";
-    script << TCqdiscRoot(netInt, "htb default 1").command;
-    script << TCclass(netInt, "1:", "1:1", "htb rate 10240kbit ceil 10240kbit burst 10240kbit").command;
-    script << TCqdiscParent(netInt, "1:1", "2:", "prio bands 16").command;
-    int classID = 1, coflow = flows[0][0];
-    script << TCfilter(netInt, "2:0", "1", DSCPfilter(dscp[coflowToPrio[flows[0][0]]], "2:"+to_string(classID))).command;
-    for(auto & flow : flows) {
-        if (flow[0] != coflow) {
-            coflow = flow[0];
-            classID++;
-            stringstream hexa;
-            hexa << hex << classID;
-            string hexaID(hexa.str());
-            script << TCfilter(netInt, "2:0", "1", DSCPfilter(dscp[coflowToPrio[flow[0]]], "2:"+hexaID)).command;
-        }
-    }
-    script << TCfilter(netInt, "2:0", "2", "matchall flowid 2:1\n").command;
-}
-
-void vectorToScript(string deviceNumber, const vector<vector<int>>& flows, ostream& parallel) {
-    ofstream script("iperf/config/prioritizationPC"+deviceNumber+".sh", ofstream::trunc);
-    script << "#!/bin/bash\n\n";
-    script << "modprobe ifb numifbs=1\n";
-    script << "ip link set dev ifb0 up\n";
-    script << "tc qdisc del dev ens3 ingress\n";
-    script << TCqdisc("ens3").command+" handle ffff: ingress\n";
-    script << "tc filter add dev ens3 protocol ip parent ffff: u32 match u32 0 0 action mirred egress redirect dev ifb0\n\n";
-    vector<vector<int>> out = outTraffic(stoi(deviceNumber), flows);
-    vector<vector<int>> in = inTraffic(stoi(deviceNumber), flows);
-    if (!out.empty()) { prioritization("ens3", out, script); }
-    if (!in.empty()) { prioritization("ifb0", in, script); }
-    parallel << "scp ~/Work/multipass/iperf/config/prioritizationPC"+deviceNumber+".sh PC"+deviceNumber+":~ && ssh PC"+deviceNumber+" sudo bash prioritizationPC"+deviceNumber+".sh &\n";
-}
-
 vector<vector<int>> fileToVector (const string& fileName) {
     ifstream instance(fileName);
     if(!instance.is_open()) throw runtime_error("Could not open file");
@@ -198,9 +158,9 @@ void sender(const vector<vector<int>>& flows) {
     }
     script.close();
     {
-        ofstream parallel("iperf/prioritization.sh", ofstream::trunc);
+        ofstream scheduler("iperf/prioritization.sh", ofstream::trunc);
         for (int i=1; i<=machineNumber; i++) {
-            vectorToScript(to_string(i), flows, parallel);
+            scheduler << "scp ~/Work/multipass/iperf/config/prio.sh PC"+to_string(i)+":~ && ssh PC"+to_string(i)+" sudo bash prio.sh &\n";
             if (isListening[i]) {
                 command = "ssh PC"+to_string(i)+" iperf -s | ts %H:%M:%.S > logs/in/log"+to_string(i)+".txt &";
                 cmd = &command[0];
@@ -228,7 +188,6 @@ int main() {
         cout<<"start "<<i<<endl;
         system("rm logs/in/*.txt");
         system("rm logs/out/*.txt");
-        system("rm iperf/config/*.sh");
         string instanceName = "toy";
         string algo = "";
         ipAddress = fileToIPAddresses("config/iptable.txt");
