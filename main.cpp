@@ -28,7 +28,7 @@ vector<int> prio;
 vector<int> coflowToPrio(1);
 vector<string> ipAddress;
 
-vector<string> fileToIPAddresses(string fileName) {
+vector<string> loadIPAddressesFromFile(string fileName) {
     ifstream instance(fileName);
     if(!instance.is_open()) throw runtime_error("Could not open file");
     vector<string> ipa;
@@ -59,32 +59,12 @@ int getDuration(string fileName) {
     return(maximum*1.2);
 }
 
-string sshIperf(vector<int> flow) {
+string buildIperfSenderCommand(vector<int> flow) {
     return "ssh PC"+to_string(flow[1])+
            " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]]]+" > /dev/null 2> logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt &\n"; // /dev/null 2>&1;
 }
 
-vector<vector<int>> outTraffic(int machineNum, const vector<vector<int>>& flows) {
-    vector<vector<int>> out;
-    for(const auto& flow: flows) {
-        if (flow[1] == machineNum) {
-            out.push_back(flow);
-        }
-    }
-    return out;
-}
-
-vector<vector<int>> inTraffic(int machineNum, const vector<vector<int>>& flows) {
-    vector<vector<int>> in;
-    for(const auto& flow: flows) {
-        if (flow[2] == machineNum) {
-            in.push_back(flow);
-        }
-    }
-    return in;
-}
-
-vector<vector<int>> fileToVector (const string& fileName) {
+vector<vector<int>> loadFlowsFromFile (const string& fileName) {
     ifstream instance(fileName);
     if(!instance.is_open()) throw runtime_error("Could not open file");
     vector<vector<int>> flows;
@@ -109,7 +89,7 @@ vector<vector<int>> fileToVector (const string& fileName) {
     return(flows);
 }
 
-vector<int> fileToPrio (const string& fileName) {
+vector<int> loadPrioFromFile (const string& fileName) {
     ifstream instance(fileName);
     if(!instance.is_open()) throw runtime_error("Could not open file");
     vector<int> prio;
@@ -150,17 +130,17 @@ void sender(const vector<vector<int>>& flows) {
     vector<bool> isListening(machineNumber, false);
     string command;
     char* cmd;
-    ofstream script("iperf/launcher.sh", ofstream::trunc);
+    ofstream script("launcher.sh", ofstream::trunc);
     script << "#!/bin/bash\n\n";
     for(auto & flow : flows) {
         isListening[flow[2]] = true;
-        script << sshIperf(flow);
+        script << buildIperfSenderCommand(flow);
     }
     script.close();
     {
-        ofstream scheduler("iperf/prioritization.sh", ofstream::trunc);
+        ofstream scheduler("prioritization.sh", ofstream::trunc);
         for (int i=1; i<=machineNumber; i++) {
-            scheduler << "scp ~/Work/multipass/iperf/config/prio.sh PC"+to_string(i)+":~ && ssh PC"+to_string(i)+" sudo bash prio.sh &\n";
+            scheduler << "scp ~/Work/multipass/tc_structure.sh PC"+to_string(i)+":~ && ssh PC"+to_string(i)+" sudo bash tc_structure.sh &\n";
             if (isListening[i]) {
                 command = "ssh PC"+to_string(i)+" iperf -s | ts %H:%M:%.S > logs/in/log"+to_string(i)+".txt &";
                 cmd = &command[0];
@@ -168,9 +148,9 @@ void sender(const vector<vector<int>>& flows) {
             }
         }
     }
-    system("bash iperf/prioritization.sh >> /dev/null 2>&1");
+    system("bash prioritization.sh >> /dev/null 2>&1");
     sleep(10);
-    command = "bash iperf/launcher.sh";
+    command = "bash launcher.sh";
     cmd = &command[0];
     system(cmd);
     sleep(duration);
@@ -190,10 +170,10 @@ int main() {
         system("rm logs/out/*.txt");
         string instanceName = "toy";
         string algo = "";
-        ipAddress = fileToIPAddresses("config/iptable.txt");
+        ipAddress = loadIPAddressesFromFile("config/iptable.txt");
         duration = getDuration("instances/"+instanceName+"_cct"+algo+".csv");
-        prio = fileToPrio("instances/"+instanceName+"_prio"+algo+".csv");
-        vector<vector<int>> flows = fileToVector("instances/"+instanceName+".csv");
+        prio = loadPrioFromFile("instances/"+instanceName+"_prio"+algo+".csv");
+        vector<vector<int>> flows = loadFlowsFromFile("instances/"+instanceName+".csv");
         setCoflowToPrio(flows, prio);
         sender(flows);
         if (algo == "") algo = "1";
