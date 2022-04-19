@@ -61,7 +61,7 @@ int getDuration(string fileName) {
 
 string buildIperfSenderCommand(vector<int> flow) {
     return "ssh PC"+to_string(flow[1])+
-           " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]]]+" > /dev/null 2> logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt &\n"; // /dev/null 2>&1;
+           " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]] + 8*(coflowToPrio[flow[0]]-1)]+" > /dev/null 2> logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt &\n"; // /dev/null 2>&1;
 }
 
 vector<vector<int>> loadFlowsFromFile (const string& fileName) {

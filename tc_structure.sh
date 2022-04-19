@@ -7,15 +7,15 @@ tc qdisc add dev ens3 handle ffff: ingress
 tc filter add dev ens3 protocol ip parent ffff: u32 match u32 0 0 action mirred egress redirect dev ifb0
 
 tc qdisc del dev ens3 root
-tc qdisc add dev ens3 root handle 1: cbq bandwidth 640Mbit allot 1514 avpkt 1000
-tc class add dev ens3 parent 1: classid 1:1 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 1 sharing
-tc class add dev ens3 parent 1: classid 1:2 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 2 sharing
-tc class add dev ens3 parent 1: classid 1:3 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 3 sharing
-tc class add dev ens3 parent 1: classid 1:4 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 4 sharing
-tc class add dev ens3 parent 1: classid 1:5 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 5 sharing
-tc class add dev ens3 parent 1: classid 1:6 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 6 sharing
-tc class add dev ens3 parent 1: classid 1:7 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 7 sharing
-tc class add dev ens3 parent 1: classid 1:8 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 8 sharing
+tc qdisc add dev ens3 root handle 1: cbq bandwidth 10Mbit allot 1514 avpkt 1000
+tc class add dev ens3 parent 1: classid 1:1 cbq rate 10Mbit allot 1514 avpkt 1000 prio 1 bounded
+tc class add dev ens3 parent 1: classid 1:2 cbq rate 10Mbit allot 1514 avpkt 1000 prio 2 bounded
+tc class add dev ens3 parent 1: classid 1:3 cbq rate 10Mbit allot 1514 avpkt 1000 prio 3 bounded
+tc class add dev ens3 parent 1: classid 1:4 cbq rate 10Mbit allot 1514 avpkt 1000 prio 4 bounded
+tc class add dev ens3 parent 1: classid 1:5 cbq rate 10Mbit allot 1514 avpkt 1000 prio 5 bounded
+tc class add dev ens3 parent 1: classid 1:6 cbq rate 10Mbit allot 1514 avpkt 1000 prio 6 bounded
+tc class add dev ens3 parent 1: classid 1:7 cbq rate 10Mbit allot 1514 avpkt 1000 prio 7 bounded
+tc class add dev ens3 parent 1: classid 1:8 cbq rate 10Mbit allot 1514 avpkt 1000 prio 8 bounded
 tc filter add dev ens3 parent 1: protocol ip prio 1 u32 match ip tos 0x04 0xff flowid 1:1
 tc filter add dev ens3 parent 1: protocol ip prio 1 u32 match ip tos 0xFC 0xff flowid 1:1
 tc filter add dev ens3 parent 1: protocol ip prio 1 u32 match ip tos 0xF8 0xff flowid 1:1
@@ -172,15 +172,15 @@ tc filter add dev ens3 parent 90: protocol ip prio 1 u32 match ip tos 0x08 0xff 
 tc filter add dev ens3 parent 90: protocol ip prio 1 u32 match ip tos 0x00 0xff flowid 90:8
 
 tc qdisc del dev ifb0 root
-tc qdisc add dev ifb0 root handle 1: cbq bandwidth 640Mbit allot 1514 avpkt 1000
-tc class add dev ifb0 parent 1: classid 1:1 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 1
-tc class add dev ifb0 parent 1: classid 1:2 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 2
-tc class add dev ifb0 parent 1: classid 1:3 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 3
-tc class add dev ifb0 parent 1: classid 1:4 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 4
-tc class add dev ifb0 parent 1: classid 1:5 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 5
-tc class add dev ifb0 parent 1: classid 1:6 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 6
-tc class add dev ifb0 parent 1: classid 1:7 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 7
-tc class add dev ifb0 parent 1: classid 1:8 cbq bandwidth 640Mbit rate 80Mbit allot 1514 avpkt 1000 prio 8
+tc qdisc add dev ifb0 root handle 1: cbq bandwidth 10Mbit allot 1514 avpkt 1000
+tc class add dev ifb0 parent 1: classid 1:1 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 1
+tc class add dev ifb0 parent 1: classid 1:2 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 2
+tc class add dev ifb0 parent 1: classid 1:3 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 3
+tc class add dev ifb0 parent 1: classid 1:4 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 4
+tc class add dev ifb0 parent 1: classid 1:5 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 5
+tc class add dev ifb0 parent 1: classid 1:6 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 6
+tc class add dev ifb0 parent 1: classid 1:7 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 7
+tc class add dev ifb0 parent 1: classid 1:8 cbq bandwidth 10Mbit rate 10Mbit allot 1514 avpkt 1000 prio 8
 
 tc filter add dev ifb0 parent 1: protocol ip prio 1 u32 match ip tos 0x04 0xff flowid 1:1
 tc filter add dev ifb0 parent 1: protocol ip prio 1 u32 match ip tos 0xFC 0xff flowid 1:1
