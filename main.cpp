@@ -224,17 +224,17 @@ void sender(const vector<vector<int>>& flows) {
 }
 
 int main() {
-    for (int i=1; i<2; i++) {
+    for (int i=1; i<100; i++) {
         cout<<"start "<<i<<endl;
         system("rm logs/in/*.txt");
         system("rm logs/out/*.txt");
         system("rm iperf/config/*.sh");
-        string instanceName = "toy";
-        string algo = "";
+        string instanceName = "NW_O.6_20M_12C";
+        string algo = "_elite";
         ipAddress = fileToIPAddresses("config/iptable.txt");
-        duration = getDuration("instances/"+instanceName+"_cct"+algo+".csv");
-        prio = fileToPrio("instances/"+instanceName+"_prio"+algo+".csv");
-        vector<vector<int>> flows = fileToVector("instances/"+instanceName+".csv");
+        duration = getDuration("instances/"+instanceName+"/"+instanceName+"_"+to_string(i)+"_cct"+algo+".csv");
+        prio = fileToPrio("instances/"+instanceName+"/"+instanceName+"_"+to_string(i)+"_prio"+algo+".csv");
+        vector<vector<int>> flows = fileToVector("instances/"+instanceName+"/"+instanceName+"_"+to_string(i)+".csv");
         setCoflowToPrio(flows, prio);
         sender(flows);
         if (algo == "") algo = "1";

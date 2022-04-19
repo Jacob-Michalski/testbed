@@ -69,7 +69,7 @@ for log in logs:
         minimum = float(startpoint)
     f.close()
 coflows = dict()
-with open(path+"instances/"+name+".csv") as instance:
+with open(path+"instances/"+name+"/"+name+"_"+str(nr)+".csv") as instance:
     for line in instance:
         if (line.split(',')[0] != "flowID"):
             data = line.split(',')
@@ -83,7 +83,7 @@ with open(path+"config/iptable.txt") as ipt:
         iptable.append(ip)
 ipt.close()
 # id = token_hex(8)
-with open(f"{path}times/{name}/{name}{algo}_({nr}).csv", "w+") as times:
+with open(f"{path}times/{name}/{name}_{nr}{algo}.csv", "w+") as times:
     times.write("coflow,source,destination,time\n")
     for log in logs:
         with open(path+"logs/in/"+log) as file:
@@ -99,7 +99,8 @@ with open(f"{path}times/{name}/{name}{algo}_({nr}).csv", "w+") as times:
                     time = line.split()[0]
                     finish = str(calculatime(start, time))
                     num = reftonum(line, 2)
-                    times.write(coflows.get(src[num]+','+dest)+','+src[num]+','+dest+','+finish+'\n')
+                    coflow = coflows.get(f"{src[num]},{dest}")
+                    times.write(f"{coflow},{src[num]},{dest},{finish}\n")
         file.close()
     # print(id)
 times.close()
