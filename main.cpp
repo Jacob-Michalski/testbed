@@ -61,7 +61,7 @@ int getDuration(string fileName) {
 
 string buildIperfSenderCommand(vector<int> flow) {
     return "ssh PC"+to_string(flow[1])+
-           " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]] + 8*(coflowToPrio[flow[0]]-1)]+" > /dev/null 2> logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt &\n"; // /dev/null 2>&1;
+           " iperf -c "+ipAddress[flow[2]]+" -n "+to_string(flow[3]*1.25)+"M -S "+dscp[coflowToPrio[flow[0]]+11]+" > /dev/null 2> logs/out/"+to_string(flow[0])+"_"+to_string(flow[1])+"to"+to_string(flow[2])+".txt &\n"; // /dev/null 2>&1;
 }
 
 vector<vector<int>> loadFlowsFromFile (const string& fileName) {
@@ -125,7 +125,7 @@ int getMachineNumber(const vector<vector<int>>& flows) {
     return machineNumber++;
 }
 
-void sender(const vector<vector<int>>& flows) {
+void sender(const vector<vector<int>>& flows, bool tcp) {
     int machineNumber = getMachineNumber(flows);
     vector<bool> isListening(machineNumber, false);
     string command;
@@ -140,7 +140,12 @@ void sender(const vector<vector<int>>& flows) {
     {
         ofstream scheduler("prioritization.sh", ofstream::trunc);
         for (int i=1; i<=machineNumber; i++) {
-            scheduler << "scp ~/Work/multipass/tc_structure.sh PC"+to_string(i)+":~ && ssh PC"+to_string(i)+" sudo bash tc_structure.sh &\n";
+            if (tcp == false) {
+                scheduler << "scp ~/Work/multipass/tc_prio.sh PC"+to_string(i)+":~ && ssh PC"+to_string(i)+" sudo bash tc_prio.sh &\n";
+            }
+            else {
+                scheduler << "scp ~/Work/multipass/tc_vanilla.sh PC"+to_string(i)+":~ && ssh PC"+to_string(i)+" sudo bash tc_vanilla.sh &\n";
+            }
             if (isListening[i]) {
                 command = "ssh PC"+to_string(i)+" iperf -s | ts %H:%M:%.S > logs/in/log"+to_string(i)+".txt &";
                 cmd = &command[0];
@@ -170,12 +175,13 @@ int main() {
         system("rm logs/out/*.txt");
         string instanceName = "toy";
         string algo = "";
+        bool tcp = false;
         ipAddress = loadIPAddressesFromFile("config/iptable.txt");
         duration = getDuration("instances/"+instanceName+"_cct"+algo+".csv");
         prio = loadPrioFromFile("instances/"+instanceName+"_prio"+algo+".csv");
         vector<vector<int>> flows = loadFlowsFromFile("instances/"+instanceName+".csv");
         setCoflowToPrio(flows, prio);
-        sender(flows);
+        sender(flows, tcp);
         if (algo == "") algo = "1";
         system(("python3 time.py "+instanceName+" "+algo+" "+to_string(i)+" "+to_string(prio.size())).c_str());
         cout<<"end "<<i<<endl;

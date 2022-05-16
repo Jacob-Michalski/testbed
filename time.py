@@ -40,7 +40,7 @@ def calculatime(start, time):
         before = (60-startmin-1)*60 + (60-startsec)
         after = timemin*60 + timesec
         time = before + after
-    return time
+    return round(time, 3)
 
 import argparse
 
