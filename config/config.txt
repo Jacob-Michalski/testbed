@@ -1,4 +1,4 @@
-Host 10.84.177.*
+Host 10.28.206.*
    StrictHostKeyChecking=no
    UserKnownHostsFile=/dev/null
 
