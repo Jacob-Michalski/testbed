@@ -61,7 +61,7 @@ def get_duration(filename):
         next(times)
         for time in next(times):
             duration = max(duration, float(time))
-        duration *=1.2
+        duration = int(duration*1.2)
 
 def get_number_of_machines():
     number = 0
@@ -74,6 +74,10 @@ def write_prioritization(number_of_machines):
     with open("prioritization.sh", "w") as prioritizarion:
         for i in range(1, number_of_machines):
             prioritizarion.write(f"scp ~/Work/multipass/tc_prio.sh PC{i}:~ && ssh PC{i} sudo bash tc_prio.sh &\n")
+        prioritizarion.write(f"for ((i=1; i <= {number_of_machines}; i++));\n")
+        prioritizarion.write("do\n")
+        prioritizarion.write("  ssh PC$i sudo iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN SYN -j DSCP --set-dscp 0\n")
+        prioritizarion.write("done\n")
 
 def prioritization():
     write_prioritization(get_number_of_machines())
@@ -118,7 +122,7 @@ def clear_logs():
     os.system("rm logs/out/*.txt")
 
 
-instance = "Cedric_3"
+instance = "Cedric_2"
 algo = "_op"
 print("start")
 clear_logs()

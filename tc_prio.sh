@@ -75,15 +75,16 @@ tc filter add dev ens3 protocol ip parent 2: prio 1 u32 match ip tos 0x10 0xff f
 tc filter add dev ens3 protocol ip parent 2: prio 1 u32 match ip tos 0x0C 0xff flowid 2:8
 tc filter add dev ens3 protocol ip parent 2: prio 1 u32 match ip tos 0x08 0xff flowid 2:8
 tc filter add dev ens3 protocol ip parent 2: prio 1 u32 match ip tos 0x04 0xff flowid 2:8
+tc filter add dev ens3 protocol ip parent 2: prio 2 matchall flowid 2:1
 
-tc qdisc add dev ens3 parent 2:1 handle 10: prio bands 9
-tc qdisc add dev ens3 parent 2:2 handle 20: prio bands 9
-tc qdisc add dev ens3 parent 2:3 handle 30: prio bands 9
-tc qdisc add dev ens3 parent 2:4 handle 40: prio bands 9
-tc qdisc add dev ens3 parent 2:5 handle 50: prio bands 9
-tc qdisc add dev ens3 parent 2:6 handle 60: prio bands 9
-tc qdisc add dev ens3 parent 2:7 handle 70: prio bands 9
-tc qdisc add dev ens3 parent 2:8 handle 80: prio bands 9
+tc qdisc add dev ens3 parent 2:1 handle 10: prio bands 8
+tc qdisc add dev ens3 parent 2:2 handle 20: prio bands 8
+tc qdisc add dev ens3 parent 2:3 handle 30: prio bands 8
+tc qdisc add dev ens3 parent 2:4 handle 40: prio bands 8
+tc qdisc add dev ens3 parent 2:5 handle 50: prio bands 8
+tc qdisc add dev ens3 parent 2:6 handle 60: prio bands 8
+tc qdisc add dev ens3 parent 2:7 handle 70: prio bands 8
+tc qdisc add dev ens3 parent 2:8 handle 80: prio bands 8
 
 tc filter add dev ens3 protocol ip parent 10: prio 1 u32 match ip tos 0x00 0xff flowid 10:1
 tc filter add dev ens3 protocol ip parent 10: prio 1 u32 match ip tos 0xFC 0xff flowid 10:2
@@ -149,6 +150,7 @@ tc filter add dev ens3 protocol ip parent 80: prio 1 u32 match ip tos 0x10 0xff 
 tc filter add dev ens3 protocol ip parent 80: prio 1 u32 match ip tos 0x0C 0xff flowid 80:6
 tc filter add dev ens3 protocol ip parent 80: prio 1 u32 match ip tos 0x08 0xff flowid 80:7
 tc filter add dev ens3 protocol ip parent 80: prio 1 u32 match ip tos 0x04 0xff flowid 80:8
+tc filter add dev ens3 protocol ip parent 10: prio 2 matchall flowid 10:1
 
 tc qdisc del dev ifb0 root
 tc qdisc add dev ifb0 root handle 1: htb default 1
@@ -219,15 +221,16 @@ tc filter add dev ifb0 protocol ip parent 2: prio 1 u32 match ip tos 0x10 0xff f
 tc filter add dev ifb0 protocol ip parent 2: prio 1 u32 match ip tos 0x0C 0xff flowid 2:8
 tc filter add dev ifb0 protocol ip parent 2: prio 1 u32 match ip tos 0x08 0xff flowid 2:8
 tc filter add dev ifb0 protocol ip parent 2: prio 1 u32 match ip tos 0x04 0xff flowid 2:8
+tc filter add dev ifb0 protocol ip parent 2: prio 2 matchall flowid 2:1
 
-tc qdisc add dev ifb0 parent 2:1 handle 10: prio bands 9
-tc qdisc add dev ifb0 parent 2:2 handle 20: prio bands 9
-tc qdisc add dev ifb0 parent 2:3 handle 30: prio bands 9
-tc qdisc add dev ifb0 parent 2:4 handle 40: prio bands 9
-tc qdisc add dev ifb0 parent 2:5 handle 50: prio bands 9
-tc qdisc add dev ifb0 parent 2:6 handle 60: prio bands 9
-tc qdisc add dev ifb0 parent 2:7 handle 70: prio bands 9
-tc qdisc add dev ifb0 parent 2:8 handle 80: prio bands 9
+tc qdisc add dev ifb0 parent 2:1 handle 10: prio bands 8
+tc qdisc add dev ifb0 parent 2:2 handle 20: prio bands 8
+tc qdisc add dev ifb0 parent 2:3 handle 30: prio bands 8
+tc qdisc add dev ifb0 parent 2:4 handle 40: prio bands 8
+tc qdisc add dev ifb0 parent 2:5 handle 50: prio bands 8
+tc qdisc add dev ifb0 parent 2:6 handle 60: prio bands 8
+tc qdisc add dev ifb0 parent 2:7 handle 70: prio bands 8
+tc qdisc add dev ifb0 parent 2:8 handle 80: prio bands 8
 
 tc filter add dev ifb0 protocol ip parent 10: prio 1 u32 match ip tos 0x00 0xff flowid 10:1
 tc filter add dev ifb0 protocol ip parent 10: prio 1 u32 match ip tos 0xFC 0xff flowid 10:2
@@ -293,3 +296,4 @@ tc filter add dev ifb0 protocol ip parent 80: prio 1 u32 match ip tos 0x10 0xff 
 tc filter add dev ifb0 protocol ip parent 80: prio 1 u32 match ip tos 0x0C 0xff flowid 80:6
 tc filter add dev ifb0 protocol ip parent 80: prio 1 u32 match ip tos 0x08 0xff flowid 80:7
 tc filter add dev ifb0 protocol ip parent 80: prio 1 u32 match ip tos 0x04 0xff flowid 80:8
+tc filter add dev ifb0 protocol ip parent 10: prio 2 matchall flowid 10:1

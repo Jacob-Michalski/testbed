@@ -52,11 +52,6 @@ def get_iperf_flow_num(data):
             num = num + char
     return int(num)
 
-# def bit_converter(size):
-#     size = size-60
-#     size = size/1250000
-#     return float(f'{size:.2f}')
-
 def calculatime(start, time):
     start_hour, start_min, start_sec = start.split(':')
     start_hour, start_min, start_sec = int(start_hour), int(start_min), float(start_sec)
@@ -89,21 +84,20 @@ def parse_results(instance, algo, nr, number_of_machines):
         for log in logs:
             with open(path+"logs/in/"+log) as data:
                 dest = 0
-                src = [0] * get_number_of_flows(instance)
+                src = [0] * 255
                 for line in data:
                     if (len(line.split()) == 12):
                         if (dest == 0):
                             dest = ip_table.index(line.split()[4])
                         num = get_iperf_flow_num(line.split()[2])
-                        src[num-1] = ip_table.index(line.split()[9])
+                        src[num] = ip_table.index(line.split()[9])
                     if (len(line.split()) == 9 or len(line.split()) == 10):
                         time = line.split()[0]
                         finish = str(calculatime(start, time))
                         num = get_iperf_flow_num(line.split()[2])
                         size = line.split()[5] if len(line.split()) == 9 else line.split()[6]
-                        #volume = bit_converter(int(size))
-                        print(f"{src[num-1]},{dest},{int(size)-60}")
-                        times.writerow([coflows.get(f"{src[num-1]},{dest},{int(size)-60}"), src[num-1], dest, finish])
+                        print(f"{src[num]},{dest},{int(size)}")
+                        times.writerow([coflows.get(f"{src[num]},{dest},{int(size)-60}"), src[num], dest, finish])
     print(coflows)
 
 def extract_results(instance, algo, nr, number_of_machines):
