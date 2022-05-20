@@ -2,6 +2,7 @@ import os, csv
 
 ip_table = []
 coflows = {}
+logs = []
 
 def load_ip_from_file():
     ip_table.append("")
@@ -80,7 +81,7 @@ def parse_results(instance, algo, nr, number_of_machines):
     start = get_startpoint()
     with open(f"{path}times/{instance}/{instance}{algo}_{nr}.csv", "w+") as content:
         times = csv.writer(content)
-        times.writerow(["coflow","source","destination","size","time"])
+        times.writerow(["coflow","source","destination","time"])
         for log in logs:
             with open(path+"logs/in/"+log) as data:
                 dest = 0
@@ -101,6 +102,8 @@ def parse_results(instance, algo, nr, number_of_machines):
     print(coflows)
 
 def extract_results(instance, algo, nr, number_of_machines):
+    global logs
+    logs = os.listdir(path+"logs/in/")
     load_ip_from_file()
     set_coflows_dict(instance)
     get_number_of_flows(instance)
@@ -108,6 +111,5 @@ def extract_results(instance, algo, nr, number_of_machines):
     parse_results(instance, algo, nr, number_of_machines)
 
 path = "/home/me/Work/multipass/"
-logs = os.listdir(path+"logs/in/")
 
 #extract_results("Cedric_1", "_op", 1, 4)

@@ -24,7 +24,7 @@ do
 	#le numero de la vm
 	machNum=$((i+100))
 	#creation de la vm avec la bonne configuration
-	multipass launch jammy -n PC$machNum --mem 512m --cloud-init cloud-config.yaml
+	multipass launch impish -n PC$machNum --mem 512m --cloud-init cloud-config.yaml
 	#recuperation de l'adresse ip de la vm nouvellement cree
 	ip=$( multipass list | awk 'END{print $3;}' )
 	#ajout de son adresse ip au fichier listant toutes les adresses

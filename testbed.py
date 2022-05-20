@@ -74,10 +74,6 @@ def write_prioritization(number_of_machines):
     with open("prioritization.sh", "w") as prioritizarion:
         for i in range(1, number_of_machines):
             prioritizarion.write(f"scp ~/Work/multipass/tc_prio.sh PC{i}:~ && ssh PC{i} sudo bash tc_prio.sh &\n")
-        prioritizarion.write(f"for ((i=1; i <= {number_of_machines}; i++));\n")
-        prioritizarion.write("do\n")
-        prioritizarion.write("  ssh PC$i sudo iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN SYN -j DSCP --set-dscp 0\n")
-        prioritizarion.write("done\n")
 
 def prioritization():
     write_prioritization(get_number_of_machines())
@@ -85,7 +81,7 @@ def prioritization():
     time.sleep(10)
 
 def ssh_iperf(flow):
-    return f"ssh PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
+    return f"ssh -v PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
 
 def write_launcher():
     with open("launcher.sh", "w") as launcher:

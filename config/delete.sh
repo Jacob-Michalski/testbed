@@ -1,8 +1,8 @@
 #!/bin/bash
 
-j=200
+j=134
 
-for ((i=165; i <= $j; i++));
+for ((i=101; i <= $j; i++));
 do
 	multipass delete PC$i
 done
