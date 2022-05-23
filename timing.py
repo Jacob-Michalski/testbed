@@ -1,5 +1,11 @@
 import os, csv
 
+class MissingTransmissionException(Exception):
+    pass
+
+class DuplicateSizeException(Exception):
+    pass
+
 ip_table = []
 coflows = {}
 logs = []
@@ -17,7 +23,13 @@ def set_coflows_dict(name):
         for flow in instance:
             coflow = int(flow[1])+1
             key = f"{flow[2]},{flow[3]},{int(float(flow[4])*1250000)}"
-            coflows[key] = str(coflow)
+            try:
+                if coflows.get(key) == None:
+                    coflows[key] = str(coflow)
+                else:
+                    raise DuplicateSizeException
+            except DuplicateSizeException:
+                print("Duplicate size for two flows with same source and destination")
 
 def get_number_of_flows(name):
     with open(f"{path}instances/{name}/{name}.csv") as content:
@@ -35,7 +47,12 @@ def get_startpoint():
         with open(path+"logs/in/"+log) as data:
             for i in range(4):
                 data.readline()
-            time = data.readline().split()[0]
+            try:
+                time = data.readline().split()[0]
+                if not time:
+                    raise MissingTransmissionException
+            except MissingTransmissionException:
+                print("Missing transmission, please retry the experiment")
             unit = time.split(":")
             startpoint = unit[0]+unit[1]+unit[2]
             if (float(startpoint) < minimum):
@@ -79,6 +96,8 @@ def calculatime(start, time):
     
 def parse_results(instance, algo, nr, number_of_machines):
     start = get_startpoint()
+    if not os.path.isdir(f"{path}times/{instance}"):
+        os.mkdir(f"{path}times/{instance}")
     with open(f"{path}times/{instance}/{instance}{algo}_{nr}.csv", "w+") as content:
         times = csv.writer(content)
         times.writerow(["coflow","source","destination","time"])
@@ -97,9 +116,7 @@ def parse_results(instance, algo, nr, number_of_machines):
                         finish = str(calculatime(start, time))
                         num = get_iperf_flow_num(line.split()[2])
                         size = line.split()[5] if len(line.split()) == 9 else line.split()[6]
-                        print(f"{src[num]},{dest},{int(size)}")
                         times.writerow([coflows.get(f"{src[num]},{dest},{int(size)-60}"), src[num], dest, finish])
-    print(coflows)
 
 def extract_results(instance, algo, nr, number_of_machines):
     global logs
@@ -112,4 +129,4 @@ def extract_results(instance, algo, nr, number_of_machines):
 
 path = "/home/me/Work/multipass/"
 
-#extract_results("Cedric_1", "_op", 1, 4)
+#extract_results("Rachid_1", "_op", 1, 10)

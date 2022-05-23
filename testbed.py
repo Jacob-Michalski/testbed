@@ -81,7 +81,7 @@ def prioritization():
     time.sleep(10)
 
 def ssh_iperf(flow):
-    return f"ssh -v PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
+    return f"ssh PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
 
 def write_launcher():
     with open("launcher.sh", "w") as launcher:
@@ -118,12 +118,14 @@ def clear_logs():
     os.system("rm logs/out/*.txt")
 
 
-instance = "Cedric_2"
-algo = "_op"
+instance = "Rachid_1"
+algo = "_sinc"
 print("start")
 clear_logs()
 setup(instance)
 prioritization()
 expedition()
+print("transfer finished")
+print("extracting data")
 extract_results(instance, algo, 1, get_number_of_machines())
 print("end")
