@@ -1,10 +1,7 @@
 import sys, os, csv, time
 from timing import extract_results
+from coflowplot import graph
 
-ip_table = []
-flows = []
-prio = []
-duration = 0.0
 dscp = ["", "0xFC", "0xF8", "0xF4", "0xF0",
             "0xEC", "0xE8", "0xE4", "0xE0",
             "0xDC", "0xD8", "0xD4", "0xD0",
@@ -21,6 +18,7 @@ dscp = ["", "0xFC", "0xF8", "0xF4", "0xF0",
             "0x2C", "0x28", "0x24", "0x20",
             "0x1C", "0x18", "0x14", "0x10",
             "0x0C", "0x08", "0x04", "0x00"]
+
 
 def load_ip_from_file(filename):
     ip_table.append("")
@@ -61,7 +59,7 @@ def get_duration(filename):
         next(times)
         for time in next(times):
             duration = max(duration, float(time))
-        duration = int(duration*1.2)
+        duration = int(duration*1.3)
 
 def get_number_of_machines():
     number = 0
@@ -70,10 +68,17 @@ def get_number_of_machines():
         number = flow[2] if flow[2] > number else number
     return number+1
 
+def get_number_of_coflows():
+    number = 0
+    for flow in flows:
+        if flow[0] > number:
+            number = flow[0]
+    return number+1
+
 def write_prioritization(number_of_machines):
     with open("prioritization.sh", "w") as prioritizarion:
         for i in range(1, number_of_machines):
-            prioritizarion.write(f"scp ~/Work/multipass/tc_prio.sh PC{i}:~ && ssh PC{i} sudo bash tc_prio.sh &\n")
+            prioritizarion.write(f"scp tc_prio.sh PC{i}:~ && ssh PC{i} sudo bash tc_prio.sh &\n")
 
 def prioritization():
     write_prioritization(get_number_of_machines())
@@ -81,7 +86,7 @@ def prioritization():
     time.sleep(10)
 
 def ssh_iperf(flow):
-    return f"ssh PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
+    return f"ssh PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]+13]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
 
 def write_launcher():
     with open("launcher.sh", "w") as launcher:
@@ -105,12 +110,12 @@ def expedition():
         if destination[i]:
             os.system(f"ssh PC{i} killall iperf -9")
 
-def setup(instance):
+def setup():
     load_ip_from_file("config/iptable.txt")
-    load_flows_from_file(f"instances/{instance}/{instance}.csv")
-    load_prio_from_file(f"instances/{instance}/{instance}_prio{algo}.csv")
+    load_flows_from_file(f"instances/{instance}/{instance}{nr}.csv")
+    load_prio_from_file(f"instances/{instance}/{instance}{nr}_prio{algo}.csv")
     set_prio_to_flows()
-    get_duration(f"instances/{instance}/{instance}_cct{algo}.csv")
+    get_duration(f"instances/{instance}/{instance}{nr}_cct{algo}.csv")
     get_number_of_machines()
 
 def clear_logs():
@@ -118,14 +123,23 @@ def clear_logs():
     os.system("rm logs/out/*.txt")
 
 
-instance = "Rachid_1"
-algo = "_sinc"
-print("start")
-clear_logs()
-setup(instance)
-prioritization()
-expedition()
-print("transfer finished")
-print("extracting data")
-extract_results(instance, algo, 1, get_number_of_machines())
-print("end")
+for i in range(4,5):
+    ip_table = []
+    flows = []
+    prio = []
+    duration = 0.0
+    instance = "Rachid"
+    nr = f"_{i}"
+    algo = "_op"
+    print(f"start{nr}")
+    clear_logs()
+    setup()
+    prioritization()
+    expedition()
+    print("transfer finished")
+    print("extracting data")
+    extract_results(instance, algo, nr, get_number_of_machines())
+    print("data extracted")
+    print("making graph")
+    graph(instance, algo, nr, get_number_of_coflows())
+    print(f"end{nr}")

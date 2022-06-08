@@ -10,14 +10,18 @@ ip_table = []
 coflows = {}
 logs = []
 
+def reset():
+    global ip_table, coflows, logs
+    ip_table, coflows, logs = [], {}, []
+
 def load_ip_from_file():
     ip_table.append("")
     with open(path+"config/iptable.txt") as ipt:
         for ip in ipt:
             ip_table.append(ip[:-1])
 
-def set_coflows_dict(name):
-    with open(f"{path}instances/{name}/{name}.csv") as content:
+def set_coflows_dict(name, nr):
+    with open(f"{path}instances/{name}/{name}{nr}.csv") as content:
         instance = csv.reader(content)
         next(instance)
         for flow in instance:
@@ -31,8 +35,8 @@ def set_coflows_dict(name):
             except DuplicateSizeException:
                 print("Duplicate size for two flows with same source and destination")
 
-def get_number_of_flows(name):
-    with open(f"{path}instances/{name}/{name}.csv") as content:
+def get_number_of_flows(name, nr):
+    with open(f"{path}instances/{name}/{name}{nr}.csv") as content:
         instance = csv.reader(content)
         next(instance)
         number = 0
@@ -98,7 +102,7 @@ def parse_results(instance, algo, nr, number_of_machines):
     start = get_startpoint()
     if not os.path.isdir(f"{path}times/{instance}"):
         os.mkdir(f"{path}times/{instance}")
-    with open(f"{path}times/{instance}/{instance}{algo}_{nr}.csv", "w+") as content:
+    with open(f"{path}times/{instance}/{instance}{nr}{algo}.csv", "w+") as content:
         times = csv.writer(content)
         times.writerow(["coflow","source","destination","time"])
         for log in logs:
@@ -122,11 +126,10 @@ def extract_results(instance, algo, nr, number_of_machines):
     global logs
     logs = os.listdir(path+"logs/in/")
     load_ip_from_file()
-    set_coflows_dict(instance)
-    get_number_of_flows(instance)
+    set_coflows_dict(instance, nr)
+    get_number_of_flows(instance, nr)
     get_startpoint()
     parse_results(instance, algo, nr, number_of_machines)
+    reset()
 
 path = "/home/me/Work/multipass/"
-
-#extract_results("Rachid_1", "_op", 1, 10)
