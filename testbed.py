@@ -1,7 +1,11 @@
-import sys, os, csv, time
+import argparse, os, csv, time
 from timing import extract_results
 from coflowplot import graph
 
+ip_table = []
+flows = []
+prio = []
+duration = 0.0
 dscp = ["", "0xFC", "0xF8", "0xF4", "0xF0",
             "0xEC", "0xE8", "0xE4", "0xE0",
             "0xDC", "0xD8", "0xD4", "0xD0",
@@ -123,23 +127,22 @@ def clear_logs():
     os.system("rm logs/out/*.txt")
 
 
-for i in range(4,5):
-    ip_table = []
-    flows = []
-    prio = []
-    duration = 0.0
-    instance = "Rachid"
-    nr = f"_{i}"
-    algo = "_op"
-    print(f"start{nr}")
-    clear_logs()
-    setup()
-    prioritization()
-    expedition()
-    print("transfer finished")
-    print("extracting data")
-    extract_results(instance, algo, nr, get_number_of_machines())
-    print("data extracted")
-    print("making graph")
-    graph(instance, algo, nr, get_number_of_coflows())
-    print(f"end{nr}")
+parser = argparse.ArgumentParser()
+parser.add_argument('algo', type=str)
+parser.add_argument('nr', type=str)
+args = parser.parse_args()
+instance = "Rachid"
+nr = f"_{args.nr}"
+algo = f"_{args.algo}"
+print(f"start{nr}")
+clear_logs()
+setup()
+prioritization()
+expedition()
+print("transfer finished")
+print("extracting data")
+extract_results(instance, algo, nr, get_number_of_machines())
+print("data extracted")
+print("making graph")
+graph(instance, algo, nr, get_number_of_coflows())
+print(f"end{nr}")

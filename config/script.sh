@@ -8,7 +8,7 @@ user=$( whoami )
 host=$( hostname --all-ip-addresses | awk '{print$2;}' )
 #si nouvelle instance
 if [ "$j" -eq 1 ]
-then	
+then
 	#vidage du fichier iptables.txt
 	: > iptable.txt
 	#suppression de la configuration ssh

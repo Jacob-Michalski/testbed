@@ -12,7 +12,9 @@ logs = []
 
 def reset():
     global ip_table, coflows, logs
-    ip_table, coflows, logs = [], {}, []
+    ip_table.clear() 
+    coflows.clear()
+    logs.clear()
 
 def load_ip_from_file():
     ip_table.append("")
@@ -123,6 +125,7 @@ def parse_results(instance, algo, nr, number_of_machines):
                         times.writerow([coflows.get(f"{src[num]},{dest},{int(size)-60}"), src[num], dest, finish])
 
 def extract_results(instance, algo, nr, number_of_machines):
+    reset()
     global logs
     logs = os.listdir(path+"logs/in/")
     load_ip_from_file()
@@ -130,6 +133,5 @@ def extract_results(instance, algo, nr, number_of_machines):
     get_number_of_flows(instance, nr)
     get_startpoint()
     parse_results(instance, algo, nr, number_of_machines)
-    reset()
 
 path = "/home/me/Work/multipass/"

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import csv
+import csv, os
 
 def graph(name, algo, nr, coflowNumber):
 
@@ -19,6 +19,8 @@ def graph(name, algo, nr, coflowNumber):
     times = np.array(list(times.values()))
     expected_times = np.array(list(expected))
 
+    if not os.path.isdir(f"graphs/{name}"):
+        os.mkdir(f"graphs/{name}")
     with open(f"times/{name}/{name}{nr}{algo}_cct.csv", 'w+') as content:
         ccts = csv.writer(content)
         ccts.writerow(times)
