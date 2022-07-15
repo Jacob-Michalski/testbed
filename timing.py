@@ -1,4 +1,5 @@
 import os, csv
+from secrets import token_hex
 
 class MissingTransmissionException(Exception):
     pass
@@ -54,9 +55,11 @@ def get_startpoint():
             for i in range(4):
                 data.readline()
             try:
-                time = data.readline().split()[0]
+                time = data.readline().split()
                 if not time:
                     raise MissingTransmissionException
+                else:
+                    time = time[0]
             except MissingTransmissionException:
                 print("Missing transmission, please retry the experiment")
             unit = time.split(":")
@@ -100,7 +103,7 @@ def calculatime(start, time):
         time = before + after
     return round(time, 3)
     
-def parse_results(instance, algo, nr, number_of_machines):
+def parse_results(instance, algo, nr):
     start = get_startpoint()
     if not os.path.isdir(f"{path}times/{instance}"):
         os.mkdir(f"{path}times/{instance}")
@@ -123,8 +126,9 @@ def parse_results(instance, algo, nr, number_of_machines):
                         num = get_iperf_flow_num(line.split()[2])
                         size = line.split()[5] if len(line.split()) == 9 else line.split()[6]
                         times.writerow([coflows.get(f"{src[num]},{dest},{int(size)-60}"), src[num], dest, finish])
+    os.system(f"cp {path}times/{instance}/{instance}{nr}{algo}.csv {path}times/{instance}/{instance}{nr}{algo}_{token_hex(8)}.csv")
 
-def extract_results(instance, algo, nr, number_of_machines):
+def extract_results(instance, algo, nr):
     reset()
     global logs
     logs = os.listdir(path+"logs/in/")
@@ -132,6 +136,6 @@ def extract_results(instance, algo, nr, number_of_machines):
     set_coflows_dict(instance, nr)
     get_number_of_flows(instance, nr)
     get_startpoint()
-    parse_results(instance, algo, nr, number_of_machines)
+    parse_results(instance, algo, nr)
 
 path = "/home/me/Work/multipass/"

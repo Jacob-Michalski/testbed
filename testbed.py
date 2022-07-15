@@ -6,22 +6,37 @@ ip_table = []
 flows = []
 prio = []
 duration = 0.0
-dscp = ["", "0xFC", "0xF8", "0xF4", "0xF0",
-            "0xEC", "0xE8", "0xE4", "0xE0",
-            "0xDC", "0xD8", "0xD4", "0xD0",
-            "0xCC", "0xC8", "0xC4", "0xC0",
-            "0xBC", "0xB8", "0xB4", "0xB0",
-            "0xAC", "0xA8", "0xA4", "0xA0",
-            "0x9C", "0x98", "0x94", "0x90",
-            "0x8C", "0x88", "0x84", "0x80",
-            "0x7C", "0x78", "0x74", "0x70",
-            "0x6C", "0x68", "0x64", "0x60",
-            "0x5C", "0x58", "0x54", "0x50",
-            "0x4C", "0x48", "0x44", "0x40",
-            "0x3C", "0x38", "0x34", "0x30",
-            "0x2C", "0x28", "0x24", "0x20",
-            "0x1C", "0x18", "0x14", "0x10",
-            "0x0C", "0x08", "0x04", "0x00"]
+# dscp = ["", "0xFC", "0xF8", "0xF4", "0xF0",
+#             "0xEC", "0xE8", "0xE4", "0xE0",
+#             "0xDC", "0xD8", "0xD4", "0xD0",
+#             "0xCC", "0xC8", "0xC4", "0xC0",
+#             "0xBC", "0xB8", "0xB4", "0xB0",
+#             "0xAC", "0xA8", "0xA4", "0xA0",
+#             "0x9C", "0x98", "0x94", "0x90",
+#             "0x8C", "0x88", "0x84", "0x80",
+#             "0x7C", "0x78", "0x74", "0x70",
+#             "0x6C", "0x68", "0x64", "0x60",
+#             "0x5C", "0x58", "0x54", "0x50",
+#             "0x4C", "0x48", "0x44", "0x40",
+#             "0x3C", "0x38", "0x34", "0x30",
+#             "0x2C", "0x28", "0x24", "0x20",
+#             "0x1C", "0x18", "0x14", "0x10"]
+
+dscp = ["", "0x10", "0x14", "0x18", "0x1C",
+            "0x20", "0x24", "0x28", "0x2C",
+            "0x30", "0x34", "0x38", "0x3C",
+            "0x40", "0x44", "0x48", "0x4C",
+            "0x50", "0x54", "0x58", "0x5C",
+            "0x60", "0x64", "0x68", "0x6C",
+            "0x70", "0x74", "0x78", "0x7C",
+            "0x80", "0x84", "0x88", "0x8C",
+            "0x90", "0x94", "0x98", "0x9C",
+            "0xA0", "0xA4", "0xA8", "0xAC",
+            "0xB0", "0xB4", "0xB8", "0xBC",
+            "0xC0", "0xC4", "0xC8", "0xCC",
+            "0xD0", "0xD4", "0xD8", "0xDC",
+            "0xE0", "0xE4", "0xE8", "0xEC",
+            "0xF0", "0xF4", "0xF8", "0xFC"]
 
 
 def load_ip_from_file(filename):
@@ -63,7 +78,7 @@ def get_duration(filename):
         next(times)
         for time in next(times):
             duration = max(duration, float(time))
-        duration = int(duration*1.3)
+        duration = int(duration)
 
 def get_number_of_machines():
     number = 0
@@ -87,10 +102,10 @@ def write_prioritization(number_of_machines):
 def prioritization():
     write_prioritization(get_number_of_machines())
     os.system("bash prioritization.sh >> /dev/null 2>&1")
-    time.sleep(10)
+    time.sleep(5)
 
 def ssh_iperf(flow):
-    return f"ssh PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]+13]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
+    return f"ssh PC{flow[1]} iperf -c {ip_table[flow[2]]} -n {flow[3]} -S {dscp[flow[4]]} > /dev/null 2> logs/out/{flow[0]+1}_{flow[1]}to{flow[2]}.txt &\n"
 
 def write_launcher():
     with open("launcher.sh", "w") as launcher:
@@ -109,10 +124,10 @@ def expedition():
             os.system(f"ssh PC{i} iperf -s -f b | ts %H:%M:%.S > logs/in/log{i}.txt &")
     time.sleep(1)
     os.system("bash launcher.sh")
-    time.sleep(duration)
+    time.sleep(duration*1.5)
     for i in range(number_of_machines):
         if destination[i]:
-            os.system(f"ssh PC{i} killall iperf -9")
+            os.system(f"ssh PC{i} killall -9 iperf &")
 
 def setup():
     load_ip_from_file("config/iptable.txt")
@@ -131,17 +146,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument('algo', type=str)
 parser.add_argument('nr', type=str)
 args = parser.parse_args()
-instance = "Rachid"
+instance = "elden_ring"
 nr = f"_{args.nr}"
 algo = f"_{args.algo}"
 print(f"start{nr}")
 clear_logs()
 setup()
 prioritization()
+print("transfer started")
 expedition()
 print("transfer finished")
 print("extracting data")
-extract_results(instance, algo, nr, get_number_of_machines())
+extract_results(instance, algo, nr)
 print("data extracted")
 print("making graph")
 graph(instance, algo, nr, get_number_of_coflows())

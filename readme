@@ -1,0 +1,37 @@
+~ COFLOW SENDER ~
+
+Pour lancer le programme, il convient d'exécuter testbed.py avec arguments (nom_algo et numéro_instance)
+Le nom de l'instance est codé en dur dans le code, il doit être changé lorsqu'on passe à un autre batch d'instances.
+
+Les fichiers timing.py et coflowplot.py contiennent le code d'extraction des temps une fois l'expérience terminée.
+Les scripts python sont composés de petites fonctions nommé de manière explicite.
+
+Le script batch.sh permet de lancer plusieurs instances d'un même batch à la suite automatiquement.
+
+Le dossier config contient les fichiers de configuration pour les VM et le script de déploiement du parc.
+script.sh permet de générer x VM entièrement configurées avec échange de clés effectué.
+Le fichier iptables.txt contient toutes les adresses ip des VM et doit impérativement être à jour.
+Normalement il est automatiquement mis à jour lors du déploiement d'un parc ou de l'ajout de nouvelles machines.
+
+Le dossier graphs contient les fichiers contenant les représentations graphiques des résultats des expériences.
+
+Le dossier instances doit contenir les données des instanes. Il s'agit de fichier csv.
+Un premier fichier contient la représentation des machines et des flows de l'instance.
+Deux autres fichiers sont spécifique à l'algorithme testé et contiennent respectivement l'ordre de priorité des coflows
+et le cct (temps de complétion du coflow) pour chaque coflow.
+Les scripts se basent sur ces données pour initialiser l'expérience.
+
+laucher.sh est un fichier temporaire généré par testbed.py qui permet de lancer les flows en réseau.
+
+prioritization.sh est un autre fichier temporaire généré par testbed.py qui permet d'envoyer les réglages de priorisation.
+
+Le dossier logs contient les données des transferts effectué avec iperf. C'est en lisant ces fichiers que nous pouvons
+déduire nos résultats.
+
+tc_prio.sh est le fichier clé, c'est le fruit de la recherche effectuée sur tc pour mettre en place la priorisation.
+Il contient les paramètres des qdisc de tc utilisée, la bonne répartition des classes et les filtres pertinents.
+
+tc_vanilla.sh est le fichier contenant une configuration du réseau sans priorisation. Il conserve uniquement la limitation du débit.
+
+Le dossier time contient les csv générés lors des expériences contenant les temps de chaque flow d'une instance.
+Ils contiennent toute l'information pertinente mais doit être analysé pour en tirer des résultats concrets.
