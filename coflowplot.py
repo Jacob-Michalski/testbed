@@ -21,13 +21,13 @@ def graph(name, algo, nr, coflowNumber):
 
     if not os.path.isdir(f"graphs/{name}"):
         os.mkdir(f"graphs/{name}")
-    with open(f"times/{name}/{name}{nr}{algo}_cct.csv", 'a+') as content:
+    with open(f"times/{name}/{name}{nr}{algo}_cct.csv", 'w+') as content:
         ccts = csv.writer(content)
         ccts.writerow(times)
 
     print(times)
 
-    # plt.bar(coflows, times, align="edge", width=0.3)
-    # plt.bar(coflows, expected_times, align="edge", width=-0.3)
-    # plt.savefig(f"graphs/{name}/{name}{nr}{algo}.png")
-    # plt.clf()
+    plt.bar(coflows, times, align="edge", width=0.3)
+    plt.bar(coflows, expected_times, align="edge", width=-0.3)
+    plt.savefig(f"graphs/{name}/{name}{nr}{algo}.png")
+    plt.clf()

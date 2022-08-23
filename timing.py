@@ -1,5 +1,4 @@
 import os, csv
-from secrets import token_hex
 
 class MissingTransmissionException(Exception):
     pass
@@ -55,11 +54,9 @@ def get_startpoint():
             for i in range(4):
                 data.readline()
             try:
-                time = data.readline().split()
+                time = data.readline().split()[0]
                 if not time:
                     raise MissingTransmissionException
-                else:
-                    time = time[0]
             except MissingTransmissionException:
                 print("Missing transmission, please retry the experiment")
             unit = time.split(":")
@@ -125,8 +122,7 @@ def parse_results(instance, algo, nr):
                         finish = str(calculatime(start, time))
                         num = get_iperf_flow_num(line.split()[2])
                         size = line.split()[5] if len(line.split()) == 9 else line.split()[6]
-                        times.writerow([coflows.get(f"{src[num]},{dest},{int(size)-60}"), src[num], dest, finish])
-    os.system(f"cp {path}times/{instance}/{instance}{nr}{algo}.csv {path}times/{instance}/{instance}{nr}{algo}_{token_hex(8)}.csv")
+                        times.writerow([coflows.get(f"{src[num]},{dest},{int(size)}"), src[num], dest, finish])
 
 def extract_results(instance, algo, nr):
     reset()

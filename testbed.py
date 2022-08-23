@@ -6,22 +6,6 @@ ip_table = []
 flows = []
 prio = []
 duration = 0.0
-# dscp = ["", "0xFC", "0xF8", "0xF4", "0xF0",
-#             "0xEC", "0xE8", "0xE4", "0xE0",
-#             "0xDC", "0xD8", "0xD4", "0xD0",
-#             "0xCC", "0xC8", "0xC4", "0xC0",
-#             "0xBC", "0xB8", "0xB4", "0xB0",
-#             "0xAC", "0xA8", "0xA4", "0xA0",
-#             "0x9C", "0x98", "0x94", "0x90",
-#             "0x8C", "0x88", "0x84", "0x80",
-#             "0x7C", "0x78", "0x74", "0x70",
-#             "0x6C", "0x68", "0x64", "0x60",
-#             "0x5C", "0x58", "0x54", "0x50",
-#             "0x4C", "0x48", "0x44", "0x40",
-#             "0x3C", "0x38", "0x34", "0x30",
-#             "0x2C", "0x28", "0x24", "0x20",
-#             "0x1C", "0x18", "0x14", "0x10"]
-
 dscp = ["", "0x10", "0x14", "0x18", "0x1C",
             "0x20", "0x24", "0x28", "0x2C",
             "0x30", "0x34", "0x38", "0x3C",
@@ -124,7 +108,7 @@ def expedition():
             os.system(f"ssh PC{i} iperf -s -f b | ts %H:%M:%.S > logs/in/log{i}.txt &")
     time.sleep(1)
     os.system("bash launcher.sh")
-    time.sleep(duration*1.5)
+    time.sleep(duration*1.2)
     for i in range(number_of_machines):
         if destination[i]:
             os.system(f"ssh PC{i} killall -9 iperf &")
@@ -146,7 +130,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('algo', type=str)
 parser.add_argument('nr', type=str)
 args = parser.parse_args()
-instance = "elden_ring"
+instance = "Rachid11"
 nr = f"_{args.nr}"
 algo = f"_{args.algo}"
 print(f"start{nr}")

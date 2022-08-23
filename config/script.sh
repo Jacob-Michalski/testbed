@@ -1,7 +1,7 @@
 #!/bin/bash
 
 j=1
-k=50
+k=32
 #recuperation du nom d'utilisateur
 user=$( whoami )
 #recuperation du nom / adresse ip de l'hote
@@ -24,7 +24,7 @@ do
 	#le numero de la vm
 	machNum=$((i+100))
 	#creation de la vm avec la bonne configuration
-	multipass launch impish -n PC$machNum --mem 512m --cloud-init cloud-config.yaml
+	multipass launch -n PC$machNum --mem 512m --cloud-init cloud-config.yaml
 	#recuperation de l'adresse ip de la vm nouvellement cree
 	ip=$( multipass list | awk 'END{print $3;}' )
 	#ajout de son adresse ip au fichier listant toutes les adresses
@@ -34,8 +34,8 @@ do
 	sshpass -p "admin" scp -o StrictHostKeyChecking=no config.txt ubuntu@$ip:
 	#installation des packets necessaires sur la vm et transmission de la cle ssh 
 	sshpass -p "admin" ssh ubuntu@$ip "sudo hwclock --hctosys && sudo localedef -i fr_FR -f UTF-8 fr_FR.UTF-8 && \
-	sleep 2 && sudo apt update && sudo apt -y install python3-scapy && sudo apt -y install iperf && \
-	sudo apt -y install sshpass && sudo apt -y install net-tools && sudo sysctl net.core.somaxconn=65536 && \
+	sleep 2 && sudo apt update && sudo apt -y install iperf && sudo apt -y install sshpass && \
+	sudo apt -y install net-tools && sudo sysctl net.core.somaxconn=65536 && \
 	sudo sysctl net.ipv4.tcp_retries1=10 && sudo sysctl net.ipv4.tcp_retries2=20 && \
 	sudo sysctl net.ipv4.tcp_syn_retries=127 && sudo sysctl net.ipv4.tcp_synack_retries=127 && \
 	ssh-keygen -f /home/ubuntu/.ssh/id_rsa -q -N '""' && \
